@@ -11,8 +11,10 @@ public class Program
         var builder = WebApplication.CreateSlimBuilder(args);
         builder.Services.AddOpenApi();
 
-        builder.Services.AddDbContext(builder);
-        builder.Services.AddServices();
+        builder.Services
+            .AddDbContext(builder)
+            .AddServices()
+            .AddMappers();
 
         var app = builder.Build();
         app.MapApi();
@@ -22,9 +24,9 @@ public class Program
             app.MapOpenApi(); // host:port/openapi/v1.json
             app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "v1"));
         }
-    
+
         //TODO Add rate limiting middleware
-        
+
         app.UseHttpsRedirection();
 
         await using (var scope = app.Services.CreateAsyncScope())
@@ -32,7 +34,7 @@ public class Program
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             await dbContext.Database.MigrateAsync();
         }
-        
+
         await app.RunAsync();
     }
 }
