@@ -32,7 +32,7 @@ public static class BooksCrudApi
             .Accepts<CreateBookRequest>("application/json")
             .Produces<BookResponse>(StatusCodes.Status201Created);
 
-        group.MapPut("/{id}", async (Guid id, UpdateBookRequest request, IBookService bookService, CancellationToken cancellationToken) =>
+        group.MapPut("/{id}", async (int id, UpdateBookRequest request, IBookService bookService, CancellationToken cancellationToken) =>
             {
                 var result = await bookService.UpdateAsync(id, request, cancellationToken);
                 return result ? Results.NoContent() : Results.NotFound();
@@ -41,7 +41,7 @@ public static class BooksCrudApi
             .Accepts<UpdateBookRequest>("application/json")
             .Produces(StatusCodes.Status204NoContent).Produces(StatusCodes.Status404NotFound);
 
-        group.MapDelete("/{id}", async (Guid id, IBookService bookService, CancellationToken cancellationToken) =>
+        group.MapDelete("/{id}", async (int id, IBookService bookService, CancellationToken cancellationToken) =>
             {
                 var result = await bookService.DeleteAsync(id, cancellationToken);
                 return result ? Results.NoContent() : Results.NotFound();

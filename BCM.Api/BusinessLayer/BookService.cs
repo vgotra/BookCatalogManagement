@@ -1,23 +1,52 @@
+using BCM.Api.BusinessLayer.Mappers;
 using BCM.Api.BusinessLayer.Models.Books;
 using BCM.Api.DataAccess;
 using Microsoft.EntityFrameworkCore;
 
 namespace BCM.Api.BusinessLayer;
 
-public class BookService(ApplicationDbContext dbContext) : IBookService
+public class BookService(ApplicationDbContext dbContext, IBookMapper bookMapper) : IBookService
 {
     public async Task<IEnumerable<BookResponse>> GetAllAsync(CancellationToken cancellationToken)
     {
-        //TODO Add mapper 
         var books = await dbContext.Books.ToListAsync(cancellationToken);
-        return books.Select(x => new BookResponse { Id = x.Id, Title = x.Title, Author = x.Author, Genre = x.Genre });
+        return books.Select(bookMapper.ToResponse)!;
     }
     
-    public Task<BookResponse?> GetByIdAsync(int id) => throw new NotImplementedException();
-    
-    public Task<BookResponse?> CreateAsync(CreateBookRequest request, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public async Task<BookResponse?> GetByIdAsync(int id)
+    {
+        var book = await dbContext.Books.FindAsync(id);
+        return bookMapper.ToResponse(book);
+    }
 
-    public Task<bool> UpdateAsync(Guid id, UpdateBookRequest request, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public async Task<BookResponse?> CreateAsync(CreateBookRequest? request, CancellationToken cancellationToken = default)
+    {
+        var book = bookMapper.ToEntity(request);
+        if (book is null) 
+            return null;
+        
+        dbContext.Books.Add(book);
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return bookMapper.ToResponse(book);
+    }
 
-    public Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public async Task<bool> UpdateAsync(int id, UpdateBookRequest? request, CancellationToken cancellationToken = default)
+    {
+        var book = await dbContext.Books.FindAsync(id, cancellationToken);
+        if (book is null || request is null) 
+            return false;
+        
+        book.Title = request.Title;
+        book.Author = request.Author;
+        book.Genre = request.Genre;
+        
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var result = await dbContext.Books.Where(x => x.Id == id).ExecuteDeleteAsync(cancellationToken);
+        return result > 0;
+    }
 }
