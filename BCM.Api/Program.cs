@@ -17,7 +17,7 @@ public class Program
             .AddDbContext(builder)
             .AddServices()
             .AddMappers();
-
+        
         var app = builder.Build();
         app.UseRateLimiter();
         app.MapApi();

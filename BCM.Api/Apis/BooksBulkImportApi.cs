@@ -8,12 +8,17 @@ public static class BooksBulkImportApi
 
     public static void MapBooksBulkImportApi(this WebApplication app)
     {
-        app.MapPost("/bulkimport", async (IBookBulkImportService bookBulkImportService, IFormFile file, CancellationToken cancellationToken = default) =>
-        {
-            await bookBulkImportService.ImportBooksAsync(file, cancellationToken);
-            return Results.Ok();
-        })
-        .WithName("BulkImport").WithDescription("Import books from csv file.")
-        .Produces(StatusCodes.Status200OK);
+        var group = app.MapGroup(BaseRoute).WithTags("Books");
+
+        var bulkImport = group.MapPost("/bulkimport", async (IBookBulkImportService bookBulkImportService, IFormFile file, CancellationToken cancellationToken = default) =>
+            {
+                await bookBulkImportService.ImportBooksAsync(file, cancellationToken);
+                return Results.Ok();
+            })
+            .WithName("BulkImport").WithDescription("Import books from csv file.")
+            .Produces(StatusCodes.Status200OK);
+
+        if (app.Environment.IsDevelopment())
+            bulkImport.DisableAntiforgery(); //For test purposes
     }
 }
