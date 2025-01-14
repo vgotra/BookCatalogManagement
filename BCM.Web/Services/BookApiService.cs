@@ -6,10 +6,17 @@ namespace BCM.Web.Services;
 
 public class BookApiService(HttpClient http) : IBookApiService
 {
+    //TODO Update check for http status codes
+    
     public async Task<BooksResponse?> GetBooksAsync(string? search, BookSort? sortBy, int page = 1, int pageSize = 10, CancellationToken cancellationToken = default)
     {
         var query = CreateQuery(search, sortBy, page, pageSize);
         return await http.GetFromJsonAsync<BooksResponse>($"books?{query}", cancellationToken);
+    }
+
+    public async Task<Book?> GetBookAsync(int id, CancellationToken cancellationToken = default)
+    {
+        return await http.GetFromJsonAsync<Book?>($"books/{id}", cancellationToken);
     }
 
     public async Task PostBookAsync(Book book, CancellationToken cancellationToken = default)

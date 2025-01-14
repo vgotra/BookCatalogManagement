@@ -2,14 +2,13 @@ using Microsoft.AspNetCore.Components;
 
 namespace BCM.Web.Pages;
 
-public partial class Add
+public partial class Add(IBookApiService bookApiService, NavigationManager navigationManager)
 {
-    [SupplyParameterFromForm] private Book? Book { get; set; }
+    [SupplyParameterFromForm] private Book Book { get; set; } = new();
 
-    protected override void OnInitialized() => Book ??= new();
-
-    private void HandleValidSubmit()
+    private async Task HandleValidSubmit()
     {
-        // Handle form submission
+        await bookApiService.PostBookAsync(Book);
+        navigationManager.NavigateTo("/");
     }
 }

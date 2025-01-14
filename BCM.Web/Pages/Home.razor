@@ -7,6 +7,10 @@
 
     <form class="d-flex input-group" role="search" @onsubmit="ApplySearchAsync">
         <input class="form-control" type="search" placeholder="Search" aria-label="Search" @bind="_searchTerm">
+        @if (!string.IsNullOrEmpty(_searchTerm))
+        {
+            <button class="btn btn-outline-secondary" type="button" @onclick="ResetSearchAsync">Reset</button>
+        }
         <button class="btn btn-outline-success" type="submit">Search</button>
     </form>
 
@@ -35,14 +39,14 @@
         }
         </tbody>
     </table>
-    
+
     <div class="d-flex justify-content-between">
         <div class="float-start">
             <button class="btn btn-outline-primary" @onclick="PreviousPageAsync" disabled="@(!CanGoToPreviousPage)">Previous</button>
             <button class="btn btn-outline-primary" @onclick="NextPageAsync" disabled="@(!CanGoToNextPage)">Next</button>
         </div>
         <div class="d-inline-flex align-items-center">
-            <select class="form-select ms-2" style="width: auto;" @bind="ItemsPerPage">
+            <select class="form-select ms-2" style="width: auto;" @bind="ItemsPerPage" @bind:after="ApplySearchAsync">
                 <option value="5">5</option>
                 <option value="10">10</option>
                 <option value="20">20</option>

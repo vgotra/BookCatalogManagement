@@ -2,26 +2,20 @@ namespace BCM.Web.Pages;
 
 public partial class Home(IBookApiService bookApiService)
 {
-    //TODO Add sorting, improve error handling, add loading spinner, improve code quality
     private List<Book> _books = new();
-
     private string _searchTerm = string.Empty;
     private int _currentPage = 1;
     private int _itemsPerPage = 10;
-    
+
     private int ItemsPerPage
     {
         get => _itemsPerPage;
-        set
-        {
-            _itemsPerPage = value < 1 ? 10 : value;
-            _ = ChangePageCountAsync();
-        }
+        set => _itemsPerPage = value < 1 ? 10 : value;
     }
-    
+
     private bool CanGoToNextPage => _currentPage < TotalPages;
     private bool CanGoToPreviousPage => _currentPage > 1;
-    private int TotalPages => (int)Math.Ceiling((double)_books.Count / _itemsPerPage);
+    private int TotalPages => (int)Math.Ceiling((double)_books.Count / ItemsPerPage);
 
     protected override async Task OnInitializedAsync() => await ApplySearchAsync();
 
@@ -29,14 +23,19 @@ public partial class Home(IBookApiService bookApiService)
     {
         try
         {
-            var response = await bookApiService.GetBooksAsync(_searchTerm, BookSort.TitleAsc, _currentPage, _itemsPerPage); 
-            _books = response?.Books ?? new();
-            _currentPage = response?.Page ?? 1;
+            var response = await bookApiService.GetBooksAsync(_searchTerm, BookSort.TitleAsc, _currentPage, ItemsPerPage);
+            _books = response?.Books ?? new List<Book>();
         }
-        catch (Exception)
+        catch
         {
             _books = new();
         }
+    }
+
+    private async Task ResetSearchAsync()
+    {
+        _searchTerm = string.Empty;
+        await ApplySearchAsync();
     }
 
     private async Task NextPageAsync()
@@ -56,9 +55,7 @@ public partial class Home(IBookApiService bookApiService)
             await ApplySearchAsync();
         }
     }
-    
-    private async Task ChangePageCountAsync() => await ApplySearchAsync();
-    
+
     private async Task DeleteBook(int id)
     {
         try
@@ -66,9 +63,9 @@ public partial class Home(IBookApiService bookApiService)
             await bookApiService.DeleteBookAsync(id);
             await ApplySearchAsync();
         }
-        catch (Exception)
+        catch
         {
-            //Exception handling
+            // Handle exception
         }
     }
 }
