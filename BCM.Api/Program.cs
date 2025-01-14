@@ -8,28 +8,27 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
+        //TODO Add caching
         var builder = WebApplication.CreateSlimBuilder(args);
-        builder.Services.AddOpenApi();
-
         builder.Services
+            .ConfigureApiRateLimiting()
+            .AddOpenApi()
             .AddCors()
             .AddDbContext(builder)
             .AddServices()
             .AddMappers();
 
         var app = builder.Build();
+        app.UseRateLimiter();
         app.MapApi();
-
         app.UseCors();
-        
+
         if (app.Environment.IsDevelopment())
         {
-            app.MapOpenApi(); // host:port/openapi/v1.json
+            app.MapOpenApi();
             app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "v1"));
             app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
         }
-        
-        //TODO Add rate limiting middleware
 
         app.UseHttpsRedirection();
 
