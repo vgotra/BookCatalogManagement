@@ -12,6 +12,7 @@ public class Program
         builder.Services.AddOpenApi();
 
         builder.Services
+            .AddCors()
             .AddDbContext(builder)
             .AddServices()
             .AddMappers();
@@ -19,12 +20,15 @@ public class Program
         var app = builder.Build();
         app.MapApi();
 
+        app.UseCors();
+        
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi(); // host:port/openapi/v1.json
             app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "v1"));
+            app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
         }
-
+        
         //TODO Add rate limiting middleware
 
         app.UseHttpsRedirection();

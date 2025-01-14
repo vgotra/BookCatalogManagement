@@ -8,6 +8,8 @@ public class BookConfiguration : IEntityTypeConfiguration<Book>
 {
     public void Configure(EntityTypeBuilder<Book> builder)
     {
+        //? Indexes, etc?
+        ///? COLLATE NOCASE for search
         builder.ToTable("Books");
 
         builder.HasKey(b => b.Id);

@@ -5,14 +5,14 @@ namespace BCM.Web;
 
 public class Program
 {
-    //TODO Reuse CDN version of CSS framework or similar
     public static async Task Main(string[] args)
     {
         var builder = WebAssemblyHostBuilder.CreateDefault(args);
         builder.RootComponents.Add<App>("#app");
         builder.RootComponents.Add<HeadOutlet>("head::after");
 
-        builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+        builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.Configuration["ApiUrl"] ?? "http://localhost:5212/api/") });
+        builder.Services.AddScoped<IBookApiService, BookApiService>();
 
         await builder.Build().RunAsync();
     }

@@ -7,6 +7,7 @@ public static class ApiMapper
     public static WebApplication MapApi(this WebApplication app)
     {
         app.MapBooksApi();
+        app.MapBooksBulkImportApi();
        
         return app;
     }

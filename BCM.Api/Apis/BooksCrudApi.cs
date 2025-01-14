@@ -9,21 +9,25 @@ public static class BooksCrudApi
 
     public static void MapBooksApi(this WebApplication app)
     {
-        //TODO Add support for search and filtering, check for null, etc
+        //TODO Check for null, etc
         var group = app.MapGroup(BaseRoute).WithTags("Books");
 
-        group.MapGet("/", async (IBookService bookService, CancellationToken cancellationToken) => 
-                await bookService.GetAllAsync(cancellationToken) is IEnumerable<BookResponse> books ? Results.Ok((object?)books) : Results.Ok(Enumerable.Empty<BookResponse>()))
-            .WithName("GetAllBooks").WithDescription("Get all books.")
+        //! No need to use name of column for simple tasks if we have predefined enum (also easier to use API)
+        group.MapGet("/", async (IBookService bookService, string? search, BookSort? sortBy, int page = 1, int pageSize = 10, CancellationToken cancellationToken = default) =>
+            {
+                var books = await bookService.GetAllAsync(search, sortBy, page, pageSize, cancellationToken);
+                return Results.Ok(books);
+            })
+            .WithName("GetAllBooks").WithDescription("Get all books with optional search, sorting, and pagination.")
             .Produces<IEnumerable<BookResponse>>();
 
-        group.MapGet("/{id}", async (int id, IBookService bookService) => 
+        group.MapGet("/{id}", async (int id, IBookService bookService) =>
                 await bookService.GetByIdAsync(id) is BookResponse book ? Results.Ok(book) : Results.NotFound())
             .WithName("GetBookById").WithDescription("Get book by unique id.")
             .Produces<BookResponse>()
             .Produces(StatusCodes.Status404NotFound);
 
-        group.MapPost("/", async (CreateBookRequest request, IBookService bookService, CancellationToken cancellationToken) =>
+        group.MapPost("/", async (CreateBookRequest request, IBookService bookService, CancellationToken cancellationToken = default) =>
             {
                 var result = await bookService.CreateAsync(request, cancellationToken);
                 return result is null ? Results.InternalServerError() : Results.Created($"{BaseRoute}/{result.Id}", result);
@@ -32,7 +36,7 @@ public static class BooksCrudApi
             .Accepts<CreateBookRequest>("application/json")
             .Produces<BookResponse>(StatusCodes.Status201Created);
 
-        group.MapPut("/{id}", async (int id, UpdateBookRequest request, IBookService bookService, CancellationToken cancellationToken) =>
+        group.MapPut("/{id}", async (int id, UpdateBookRequest request, IBookService bookService, CancellationToken cancellationToken = default) =>
             {
                 var result = await bookService.UpdateAsync(id, request, cancellationToken);
                 return result ? Results.NoContent() : Results.NotFound();
@@ -41,7 +45,7 @@ public static class BooksCrudApi
             .Accepts<UpdateBookRequest>("application/json")
             .Produces(StatusCodes.Status204NoContent).Produces(StatusCodes.Status404NotFound);
 
-        group.MapDelete("/{id}", async (int id, IBookService bookService, CancellationToken cancellationToken) =>
+        group.MapDelete("/{id}", async (int id, IBookService bookService, CancellationToken cancellationToken = default) =>
             {
                 var result = await bookService.DeleteAsync(id, cancellationToken);
                 return result ? Results.NoContent() : Results.NotFound();

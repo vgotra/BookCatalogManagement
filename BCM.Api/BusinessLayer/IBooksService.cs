@@ -4,7 +4,7 @@ namespace BCM.Api.BusinessLayer;
 
 public interface IBookService
 {
-    Task<IEnumerable<BookResponse>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<BooksResponse> GetAllAsync(string? search, BookSort? sortBy, int page = 1, int pageSize = 10, CancellationToken cancellationToken = default);
     Task<BookResponse?> GetByIdAsync(int id);
     Task<BookResponse?> CreateAsync(CreateBookRequest? request, CancellationToken cancellationToken = default);
     Task<bool> UpdateAsync(int id, UpdateBookRequest? request, CancellationToken cancellationToken = default);
