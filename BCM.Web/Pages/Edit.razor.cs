@@ -5,20 +5,19 @@ namespace BCM.Web.Pages;
 public partial class Edit(IBookApiService bookApiService, NavigationManager navigationManager)
 {
     [Parameter] public int Id { get; set; }
-    [SupplyParameterFromForm] private Book? Book { get; set; }
+    [SupplyParameterFromForm] private Book? Book { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
-        var book = await bookApiService.GetBookAsync(Id);
-        Book = book ?? new();
+        Book = await bookApiService.GetBookAsync(Id);
     }
 
     private void HandleValidSubmit()
     {
-        if (Book is not null)
-        {
-            _ = bookApiService.PutBookAsync(Id, Book); //Better reuse Patch
-            navigationManager.NavigateTo("/");
-        }
+        if (string.IsNullOrWhiteSpace(Book?.Title)) // simple check for empty book 
+            return;
+        
+        _ = bookApiService.PutBookAsync(Id, Book); //Better reuse Patch
+        navigationManager.NavigateTo("/");
     }
 }

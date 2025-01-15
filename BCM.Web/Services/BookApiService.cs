@@ -6,17 +6,29 @@ namespace BCM.Web.Services;
 
 public class BookApiService(HttpClient http) : IBookApiService
 {
-    //TODO Update check for http status codes
-    
     public async Task<BooksResponse?> GetBooksAsync(string? search, BookSort? sortBy, int page = 1, int pageSize = 10, CancellationToken cancellationToken = default)
     {
         var query = CreateQuery(search, sortBy, page, pageSize);
-        return await http.GetFromJsonAsync<BooksResponse>($"books?{query}", cancellationToken);
+        try
+        {
+            return await http.GetFromJsonAsync<BooksResponse>($"books?{query}", cancellationToken);
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     public async Task<Book?> GetBookAsync(int id, CancellationToken cancellationToken = default)
     {
-        return await http.GetFromJsonAsync<Book?>($"books/{id}", cancellationToken);
+        try
+        {
+            return await http.GetFromJsonAsync<Book?>($"books/{id}", cancellationToken);
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     public async Task PostBookAsync(Book book, CancellationToken cancellationToken = default)
@@ -34,13 +46,13 @@ public class BookApiService(HttpClient http) : IBookApiService
         await http.DeleteAsync($"books/{id}", cancellationToken);
     }
 
-    private NameValueCollection? CreateQuery(string? search, BookSort? sortBy, int page, int pageSize)
+    private NameValueCollection CreateQuery(string? search, BookSort? sortBy, int page, int pageSize)
     {
         var query = HttpUtility.ParseQueryString(string.Empty);
         
         if (!string.IsNullOrEmpty(search)) 
             query["search"] = search;
-        
+
         if (sortBy.HasValue) 
             query["sortBy"] = sortBy.ToString();
         

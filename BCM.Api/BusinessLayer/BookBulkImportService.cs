@@ -2,11 +2,13 @@
 using BCM.Api.BusinessLayer.Csv;
 using BCM.Api.DataAccess;
 using BCM.Api.DataAccess.Entities;
+using BCM.Api.SignalR;
+using Microsoft.AspNetCore.SignalR;
 using TinyCsvParser;
 
 namespace BCM.Api.BusinessLayer;
 
-public class BookBulkImportService(ApplicationDbContext dbContext) : IBookBulkImportService
+public class BookBulkImportService(ApplicationDbContext dbContext, IHubContext<BookHub> hubContext) : IBookBulkImportService
 {
     public async Task ImportBooksAsync(IFormFile file, CancellationToken cancellationToken = default)
     {
@@ -26,9 +28,12 @@ public class BookBulkImportService(ApplicationDbContext dbContext) : IBookBulkIm
             if (record.IsValid)
                 books.Add(record.Result);
         
-        //TODO Validation
+        if (books.Count == 0)
+            throw new ArgumentException("No valid books found in the file", nameof(file));
         
         await dbContext.Books.AddRangeAsync(books, cancellationToken);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        var result = await dbContext.SaveChangesAsync(cancellationToken);
+        if (result > 0)
+            await hubContext.Clients.All.SendAsync(SignalRConstants.BooksUpdated, cancellationToken);
     }
 }
