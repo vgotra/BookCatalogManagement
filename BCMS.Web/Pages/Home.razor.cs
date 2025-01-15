@@ -1,5 +1,3 @@
-using BCMS.Web.Models;
-using BCMS.Web.Services;
 using Microsoft.AspNetCore.SignalR.Client;
 
 namespace BCMS.Web.Pages;
@@ -10,7 +8,8 @@ public partial class Home(IBookApiService bookApiService) : IAsyncDisposable
     private List<Book> _books = [];
     private HubConnection? _hubConnection;
     private string _searchTerm = string.Empty;
-    
+    private string _sortColumn = nameof(Book.Title);
+    private bool _sortAscending = true;
 
     protected override async Task OnInitializedAsync()
     {
@@ -24,7 +23,27 @@ public partial class Home(IBookApiService bookApiService) : IAsyncDisposable
         await ApplySearchAsync();
     }
 
-    // public bool IsConnected => _hubConnection?.State == HubConnectionState.Connected; // for testing
+    private async Task SortTable(string column)
+    {
+        if (_sortColumn != column)
+        {
+            _sortColumn = column;
+            _sortAscending = true;
+        }
+        else
+            _sortAscending = !_sortAscending;
+
+        await ApplySearchAsync();
+    }
+
+    private BookSort GetSorting =>
+        _sortColumn switch
+        {
+            nameof(Book.Title) => _sortAscending ? BookSort.TitleAsc : BookSort.TitleDesc,
+            nameof(Book.Author) => _sortAscending ? BookSort.AuthorAsc : BookSort.AuthorDesc,
+            nameof(Book.Genre) => _sortAscending ? BookSort.GenreAsc : BookSort.GenreDesc,
+            _ => BookSort.TitleAsc
+        };
 
     public async ValueTask DisposeAsync()
     {
@@ -36,7 +55,7 @@ public partial class Home(IBookApiService bookApiService) : IAsyncDisposable
     {
         try
         {
-            var response = await bookApiService.GetBooksAsync(_searchTerm, BookSort.TitleAsc, _pagination.CurrentPage, _pagination.ItemsPerPage);
+            var response = await bookApiService.GetBooksAsync(_searchTerm, GetSorting, _pagination.CurrentPage, _pagination.ItemsPerPage);
             _books = response?.Books ?? [];
             _pagination.TotalCount = response?.TotalCount ?? 0;
         }
@@ -67,14 +86,7 @@ public partial class Home(IBookApiService bookApiService) : IAsyncDisposable
 
     private async Task DeleteBook(int id)
     {
-        try
-        {
-            await bookApiService.DeleteBookAsync(id);
+        if (await bookApiService.DeleteBookAsync(id))
             await ApplySearchAsync();
-        }
-        catch
-        {
-            // Handle exception
-        }
     }
 }

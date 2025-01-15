@@ -1,0 +1,22 @@
+﻿<th @onclick="OnClick" class="cursor-pointer">
+    <span role="button">@ColumnName
+        @if (IsSorted)
+        {
+            <i class="fa @(SortAscending ? "fa-sort-up" : "fa-sort-down")"></i>
+        }
+    </span>
+</th>
+
+@code {
+    [Parameter] public string ColumnName { get; set; } = null!;
+    [Parameter] public string SortColumn { get; set; } = null!;
+    [Parameter] public bool SortAscending { get; set; }
+    [Parameter] public EventCallback<string> OnSort { get; set; }
+
+    private bool IsSorted => SortColumn == ColumnName;
+
+    private async Task OnClick()
+    {
+        await OnSort.InvokeAsync(ColumnName);
+    }
+}

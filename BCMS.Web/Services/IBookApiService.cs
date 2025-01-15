@@ -1,6 +1,4 @@
-﻿using BCMS.Web.Models;
-
-namespace BCMS.Web.Services;
+﻿namespace BCMS.Web.Services;
 
 public interface IBookApiService
 {
@@ -8,5 +6,5 @@ public interface IBookApiService
     Task<Book?> GetBookAsync(int id, CancellationToken cancellationToken = default);
     Task PostBookAsync(Book book, CancellationToken cancellationToken = default);
     Task PutBookAsync(int id, Book book, CancellationToken cancellationToken = default);
-    Task DeleteBookAsync(int id, CancellationToken cancellationToken = default);
+    Task<bool> DeleteBookAsync(int id, CancellationToken cancellationToken = default);
 }

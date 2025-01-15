@@ -1,7 +1,6 @@
 ﻿using System.Collections.Specialized;
 using System.Net.Http.Json;
 using System.Web;
-using BCMS.Web.Models;
 
 namespace BCMS.Web.Services;
 
@@ -42,9 +41,17 @@ public class BookApiService(HttpClient http) : IBookApiService
         await http.PutAsJsonAsync($"books/{id}", book, cancellationToken);
     }
 
-    public async Task DeleteBookAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteBookAsync(int id, CancellationToken cancellationToken = default)
     {
-        await http.DeleteAsync($"books/{id}", cancellationToken);
+        try
+        {
+            await http.DeleteAsync($"books/{id}", cancellationToken);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     private NameValueCollection CreateQuery(string? search, BookSort? sortBy, int page, int pageSize)
