@@ -24,3 +24,7 @@
 - **To check API Swagger UI, navigate to [http://localhost:8080/swagger](http://localhost:8080/swagger)**
 
 - **For tracking issues navigate to [Book Catalog Management System Project](https://github.com/users/vgotra/projects/4)**
+
+### PS:
+
+- Nowadays better to start learning: [.NET Aspire overview](https://learn.microsoft.com/en-us/dotnet/aspire/get-started/aspire-overview)
