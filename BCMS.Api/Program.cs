@@ -13,21 +13,22 @@ public class Program
         builder.Services
             .ConfigureApiRateLimiting()
             .AddOpenApi()
-            .AddCors()
+            .AddCors(options => options.AddDefaultPolicy(policy => policy.WithOrigins("http://localhost").AllowAnyMethod().AllowAnyHeader()))
             .ConfigureDbContext(builder)
             .ConfigureServices()
             .ConfigureMappers()
             .ConfigureSignalR();
         
         var app = builder.Build();
-        app.UseRateLimiter()
-            .UseCors();
+        app.UseRateLimiter().UseCors();
         app.MapApi();
-
+        
+        // Easier use of OpenAPI/Swagger (also in Docker)
+        app.MapOpenApi(); 
+        app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "v1"));
+        
         if (app.Environment.IsDevelopment())
         {
-            app.MapOpenApi();
-            app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "v1"));
             app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
         }
 

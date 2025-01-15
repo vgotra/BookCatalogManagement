@@ -8,7 +8,6 @@ services:
     container_name: bcms-api
     ports:
       - "8080:8080"
-      - "8081:8081"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
 
@@ -18,7 +17,6 @@ services:
       dockerfile: Dockerfile
     container_name: bcms-web
     ports:
-      - "8082:8080"
-      - "8083:8081"
+      - "80:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production

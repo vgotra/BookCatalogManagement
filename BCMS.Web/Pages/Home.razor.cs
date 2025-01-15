@@ -1,8 +1,9 @@
+using BCMS.Web.Options;
 using Microsoft.AspNetCore.SignalR.Client;
 
 namespace BCMS.Web.Pages;
 
-public partial class Home(IBookApiService bookApiService) : IAsyncDisposable
+public partial class Home(IBookApiService bookApiService, ServicesOptions options) : IAsyncDisposable
 {
     private readonly Pagination _pagination = new();
     private List<Book> _books = [];
@@ -13,7 +14,7 @@ public partial class Home(IBookApiService bookApiService) : IAsyncDisposable
 
     protected override async Task OnInitializedAsync()
     {
-        _hubConnection = new HubConnectionBuilder().WithUrl("http://localhost:5212/booksHub").Build(); //TODO Add configuration
+        _hubConnection = new HubConnectionBuilder().WithUrl($"{options.ServerBaseUrl}/booksHub").Build();
         _hubConnection.On("BooksUpdated", async () =>
         {
             await ApplySearchAsync();

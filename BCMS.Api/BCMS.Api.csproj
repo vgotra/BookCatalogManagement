@@ -22,9 +22,5 @@
         <PackageReference Include="TinyCsvParser" Version="2.7.1" />
         <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.0" />
     </ItemGroup>
-    
-    <ItemGroup>
-      <Folder Include="DataAccess\Migrations\" />
-    </ItemGroup>
         
 </Project>

@@ -10,7 +10,7 @@ public static class BooksBulkImportApi
     {
         var group = app.MapGroup(BaseRoute).WithTags("Books");
 
-        group.MapPost("/bulkimport", async (IBookBulkImportService bookBulkImportService, IFormFile file, CancellationToken cancellationToken = default) =>
+        group.MapPost("/upload", async (IBookBulkImportService bookBulkImportService, IFormFile file, CancellationToken cancellationToken = default) =>
             {
                 await bookBulkImportService.ImportBooksAsync(file, cancellationToken);
                 return Results.Ok();

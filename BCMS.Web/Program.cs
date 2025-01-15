@@ -1,3 +1,4 @@
+using BCMS.Web.Options;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
@@ -11,7 +12,12 @@ public class Program
         builder.RootComponents.Add<App>("#app");
         builder.RootComponents.Add<HeadOutlet>("head::after");
 
-        builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.Configuration["ApiUrl"] ?? "http://localhost:5212/api/") });
+        var options = builder.Configuration.GetSection("Services").Get<ServicesOptions>();
+        if (options is null)
+            throw new InvalidOperationException("Services configuration is missing.");
+        
+        builder.Services.AddSingleton(options);
+        builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri($"{sp.GetRequiredService<ServicesOptions>().ServerBaseUrl}/api/") });
         builder.Services.AddScoped<IBookApiService, BookApiService>();
 
         await builder.Build().RunAsync();
