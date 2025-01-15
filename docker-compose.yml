@@ -3,22 +3,20 @@ version: '3.8'
 services:
   bcm-api:
     build:
-      context: ./BCM.Api
+      context: ./BCMS.Api
       dockerfile: Dockerfile
-    container_name: bcm-api
+    container_name: bcms-api
     ports:
       - "8080:8080"
-      - "8081:8081"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
 
   bcm-web:
     build:
-      context: ./BCM.Web
+      context: ./BCMS.Web
       dockerfile: Dockerfile
-    container_name: bcm-web
+    container_name: bcms-web
     ports:
-      - "8082:8080"
-      - "8083:8081"
+      - "80:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production

@@ -1,0 +1,20 @@
+﻿@page "/upload"
+
+<PageTitle>Upload CSV</PageTitle>
+
+<h3>Upload CSV</h3>
+
+<InputFile OnChange="OnInputFileChange"/>
+
+@if (_uploadResult != null)
+{
+    <div class="card">
+        <div class="card-body">
+            File uploaded: @_uploadResult.FileName
+        </div>
+    </div>
+}
+
+<div>
+    <a class="btn btn-info" href="/">Return to List</a>
+</div>
