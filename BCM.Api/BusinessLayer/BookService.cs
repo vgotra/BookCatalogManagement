@@ -2,11 +2,13 @@ using BCM.Api.BusinessLayer.Mappers;
 using BCM.Api.BusinessLayer.Models.Books;
 using BCM.Api.DataAccess;
 using BCM.Api.DataAccess.Entities;
+using BCM.Api.SignalR;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace BCM.Api.BusinessLayer;
 
-public class BookService(ApplicationDbContext dbContext, IBookMapper bookMapper) : IBookService
+public class BookService(ApplicationDbContext dbContext, IBookMapper bookMapper, IHubContext<BookHub> hubContext) : IBookService
 {
     public async Task<BooksResponse> GetAllAsync(string? search, BookSort? sortBy, int page = 1, int pageSize = 10, CancellationToken cancellationToken = default)
     {
@@ -57,6 +59,7 @@ public class BookService(ApplicationDbContext dbContext, IBookMapper bookMapper)
 
         dbContext.Books.Add(book);
         await dbContext.SaveChangesAsync(cancellationToken);
+        await hubContext.Clients.All.SendAsync(SignalRConstants.BooksUpdated, cancellationToken);
         return bookMapper.ToResponse(book);
     }
 
@@ -77,6 +80,8 @@ public class BookService(ApplicationDbContext dbContext, IBookMapper bookMapper)
     public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
         var result = await dbContext.Books.Where(x => x.Id == id).ExecuteDeleteAsync(cancellationToken);
+        if (result > 0)
+            await hubContext.Clients.All.SendAsync(SignalRConstants.BooksUpdated, cancellationToken);
         return result > 0;
     }
 }

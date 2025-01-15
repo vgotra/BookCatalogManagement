@@ -1,34 +1,47 @@
+using Microsoft.AspNetCore.SignalR.Client;
+
 namespace BCM.Web.Pages;
 
-public partial class Home(IBookApiService bookApiService)
+public partial class Home(IBookApiService bookApiService) : IAsyncDisposable
 {
-    private List<Book> _books = new();
+    private readonly Pagination _pagination = new();
+    private List<Book> _books = [];
+    private HubConnection? _hubConnection;
     private string _searchTerm = string.Empty;
-    private int _currentPage = 1;
-    private int _itemsPerPage = 10;
+    
 
-    private int ItemsPerPage
+    protected override async Task OnInitializedAsync()
     {
-        get => _itemsPerPage;
-        set => _itemsPerPage = value < 1 ? 10 : value;
+        _hubConnection = new HubConnectionBuilder().WithUrl("http://localhost:5212/bookHub").Build(); //TODO Add configuration
+        _hubConnection.On("BooksUpdated", async () =>
+        {
+            await ApplySearchAsync();
+            StateHasChanged();
+        });
+        await _hubConnection.StartAsync();
+        await ApplySearchAsync();
     }
 
-    private bool CanGoToNextPage => _currentPage < TotalPages;
-    private bool CanGoToPreviousPage => _currentPage > 1;
-    private int TotalPages => (int)Math.Ceiling((double)_books.Count / ItemsPerPage);
+    // public bool IsConnected => _hubConnection?.State == HubConnectionState.Connected; // for testing
 
-    protected override async Task OnInitializedAsync() => await ApplySearchAsync();
+    public async ValueTask DisposeAsync()
+    {
+        if (_hubConnection is not null)
+            await _hubConnection.DisposeAsync();
+    }
 
     private async Task ApplySearchAsync()
     {
         try
         {
-            var response = await bookApiService.GetBooksAsync(_searchTerm, BookSort.TitleAsc, _currentPage, ItemsPerPage);
-            _books = response?.Books ?? new List<Book>();
+            var response = await bookApiService.GetBooksAsync(_searchTerm, BookSort.TitleAsc, _pagination.CurrentPage, _pagination.ItemsPerPage);
+            _books = response?.Books ?? [];
+            _pagination.ItemsCount = response?.Books.Count ?? 0;
         }
         catch
         {
-            _books = new();
+            _books = [];
+            _pagination.Reset();
         }
     }
 
@@ -40,20 +53,14 @@ public partial class Home(IBookApiService bookApiService)
 
     private async Task NextPageAsync()
     {
-        if (CanGoToNextPage)
-        {
-            _currentPage++;
-            await ApplySearchAsync();
-        }
+        _pagination.NextPage();
+        await ApplySearchAsync();
     }
 
     private async Task PreviousPageAsync()
     {
-        if (CanGoToPreviousPage)
-        {
-            _currentPage--;
-            await ApplySearchAsync();
-        }
+        _pagination.PreviousPage();
+        await ApplySearchAsync();
     }
 
     private async Task DeleteBook(int id)

@@ -20,6 +20,7 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.0" />
         <PackageReference Include="Riok.Mapperly" Version="4.1.1" />
         <PackageReference Include="TinyCsvParser" Version="2.7.1" />
+        <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.0" />
     </ItemGroup>
     
     <ItemGroup>

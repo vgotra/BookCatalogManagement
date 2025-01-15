@@ -42,17 +42,17 @@
 
     <div class="d-flex justify-content-between">
         <div class="float-start">
-            <button class="btn btn-outline-primary" @onclick="PreviousPageAsync" disabled="@(!CanGoToPreviousPage)">Previous</button>
-            <button class="btn btn-outline-primary" @onclick="NextPageAsync" disabled="@(!CanGoToNextPage)">Next</button>
+            <button class="btn btn-outline-primary" @onclick="PreviousPageAsync" disabled="@(!_pagination.CanGoToPreviousPage)">Previous</button>
+            <button class="btn btn-outline-primary" @onclick="NextPageAsync" disabled="@(!_pagination.CanGoToNextPage)">Next</button>
         </div>
         <div class="d-inline-flex align-items-center">
-            <select class="form-select ms-2" style="width: auto;" @bind="ItemsPerPage" @bind:after="ApplySearchAsync">
+            <select class="form-select ms-2" style="width: auto;" @bind="_pagination.ItemsPerPage" @bind:after="ApplySearchAsync">
                 <option value="5">5</option>
                 <option value="10">10</option>
                 <option value="20">20</option>
                 <option value="50">50</option>
             </select>
-            <div class="ms-2">Page @_currentPage of @TotalPages</div>
+            <div class="ms-2">Page @_pagination.CurrentPage of @_pagination.TotalPages</div>
         </div>
     </div>
 </div>

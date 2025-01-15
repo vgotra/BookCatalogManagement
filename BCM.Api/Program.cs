@@ -1,5 +1,6 @@
 using BCM.Api.Configurations;
 using BCM.Api.DataAccess;
+using BCM.Api.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace BCM.Api;
@@ -8,20 +9,20 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
-        //TODO Add caching
         var builder = WebApplication.CreateSlimBuilder(args);
         builder.Services
             .ConfigureApiRateLimiting()
             .AddOpenApi()
             .AddCors()
-            .AddDbContext(builder)
-            .AddServices()
-            .AddMappers();
+            .ConfigureDbContext(builder)
+            .ConfigureServices()
+            .ConfigureMappers()
+            .ConfigureSignalR();
         
         var app = builder.Build();
-        app.UseRateLimiter();
+        app.UseRateLimiter()
+            .UseCors();
         app.MapApi();
-        app.UseCors();
 
         if (app.Environment.IsDevelopment())
         {
@@ -31,6 +32,7 @@ public class Program
         }
 
         app.UseHttpsRedirection();
+        app.MapHub<BookHub>("/bookHub");
 
         await using (var scope = app.Services.CreateAsyncScope())
         {

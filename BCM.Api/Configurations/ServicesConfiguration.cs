@@ -4,7 +4,7 @@ namespace BCM.Api.Configurations;
 
 public static class ServicesConfiguration
 {
-    public static IServiceCollection AddServices(this IServiceCollection services)
+    public static IServiceCollection ConfigureServices(this IServiceCollection services)
     {
         services.AddScoped<IBookService, BookService>();
         services.AddScoped<IBookBulkImportService, BookBulkImportService>();
