@@ -32,7 +32,7 @@ public class Program
         }
 
         app.UseHttpsRedirection();
-        app.MapHub<BookHub>("/bookHub");
+        app.MapHub<BooksHub>("/booksHub");
 
         await using (var scope = app.Services.CreateAsyncScope())
         {

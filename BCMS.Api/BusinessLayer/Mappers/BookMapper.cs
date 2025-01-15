@@ -13,5 +13,5 @@ public partial class BookMapper : IBookMapper
     [MapperIgnoreTarget(nameof(Book.Id))]
     public partial Book? ToEntity(CreateBookRequest? createModel);
 
-    public partial BookResponse? ToResponse(Book? entity);
+    public partial BookResponse ToResponse(Book entity);
 }

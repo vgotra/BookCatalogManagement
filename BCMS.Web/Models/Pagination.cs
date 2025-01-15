@@ -2,23 +2,32 @@
 
 public record Pagination
 {
-    private int _itemsPerPage = 10;
-    private int _itemsCount = 0;
+    private const int DefaultItemsPerPage = 10;
+    
+    private int _itemsPerPage = DefaultItemsPerPage;
+    private int _totalCount = 0;
     
     public int CurrentPage { get; private set; } = 1;
 
     public int ItemsPerPage
     {
         get => _itemsPerPage;
-        set => _itemsPerPage = value < 1 ? 10 : value;
+        set => _itemsPerPage = value < 1 ? DefaultItemsPerPage : value;
     }
     
-    public int ItemsCount
+    public int TotalCount
     {
-        set => _itemsCount = value < 0 ? 0 : value;
+        set => _totalCount = value < 0 ? 0 : value;
     }
     
-    public int TotalPages => (int)Math.Ceiling((double)_itemsCount / _itemsPerPage);
+    public int TotalPages
+    {
+        get
+        {
+            var totalPages = (int)Math.Ceiling((double)_totalCount / _itemsPerPage);
+            return totalPages < 1 ? 1 : totalPages;
+        }
+    }
 
     public bool CanGoToNextPage => CurrentPage < TotalPages;
     public bool CanGoToPreviousPage => CurrentPage > 1;
@@ -38,7 +47,7 @@ public record Pagination
     public void Reset()
     {
         CurrentPage = 1;
-        _itemsCount = 0;
-        _itemsPerPage = 10;
+        _totalCount = 0;
+        _itemsPerPage = DefaultItemsPerPage;
     }
 }

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BCMS.Api.BusinessLayer;
 
-public class BookService(ApplicationDbContext dbContext, IBookMapper bookMapper, IHubContext<BookHub> hubContext) : IBookService
+public class BookService(ApplicationDbContext dbContext, IBookMapper bookMapper, IHubContext<BooksHub> hubContext) : IBookService
 {
     public async Task<BooksResponse> GetAllAsync(string? search, BookSort? sortBy, int page = 1, int pageSize = 10, CancellationToken cancellationToken = default)
     {
@@ -36,19 +36,21 @@ public class BookService(ApplicationDbContext dbContext, IBookMapper bookMapper,
         else
             books = await booksQueryable.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(cancellationToken);
 
+        var totalCount = await booksQueryable.CountAsync(cancellationToken);
         var responses = books.Select(bookMapper.ToResponse).ToList();
         return new BooksResponse
         {
             Books = responses,
             Page = page,
-            PageSize = pageSize
+            PageSize = pageSize,
+            TotalCount = totalCount
         };
     }
 
     public async Task<BookResponse?> GetByIdAsync(int id)
     {
         var book = await dbContext.Books.FindAsync(id);
-        return bookMapper.ToResponse(book);
+        return book is null ? null : bookMapper.ToResponse(book);
     }
 
     public async Task<BookResponse?> CreateAsync(CreateBookRequest? request, CancellationToken cancellationToken = default)

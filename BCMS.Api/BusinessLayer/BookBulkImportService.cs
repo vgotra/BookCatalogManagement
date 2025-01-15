@@ -8,7 +8,7 @@ using TinyCsvParser;
 
 namespace BCMS.Api.BusinessLayer;
 
-public class BookBulkImportService(ApplicationDbContext dbContext, IHubContext<BookHub> hubContext) : IBookBulkImportService
+public class BookBulkImportService(ApplicationDbContext dbContext, IHubContext<BooksHub> hubContext) : IBookBulkImportService
 {
     public async Task ImportBooksAsync(IFormFile file, CancellationToken cancellationToken = default)
     {

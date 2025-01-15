@@ -14,7 +14,7 @@ public partial class Home(IBookApiService bookApiService) : IAsyncDisposable
 
     protected override async Task OnInitializedAsync()
     {
-        _hubConnection = new HubConnectionBuilder().WithUrl("http://localhost:5212/bookHub").Build(); //TODO Add configuration
+        _hubConnection = new HubConnectionBuilder().WithUrl("http://localhost:5212/booksHub").Build(); //TODO Add configuration
         _hubConnection.On("BooksUpdated", async () =>
         {
             await ApplySearchAsync();
@@ -38,7 +38,7 @@ public partial class Home(IBookApiService bookApiService) : IAsyncDisposable
         {
             var response = await bookApiService.GetBooksAsync(_searchTerm, BookSort.TitleAsc, _pagination.CurrentPage, _pagination.ItemsPerPage);
             _books = response?.Books ?? [];
-            _pagination.ItemsCount = response?.Books.Count ?? 0;
+            _pagination.TotalCount = response?.TotalCount ?? 0;
         }
         catch
         {

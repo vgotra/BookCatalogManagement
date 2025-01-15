@@ -7,5 +7,5 @@ public interface IBookMapper
 {
     Book? ToEntity(CreateBookRequest? createModel);
 
-    BookResponse? ToResponse(Book? entity);
+    BookResponse ToResponse(Book entity);
 }

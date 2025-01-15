@@ -2,17 +2,24 @@
 
 <h3>View Book Details</h3>
 
-<div class="mb-3">
-    <label for="title" class="form-label">Title</label>
-    <span id="title" class="form-control">@Book?.Title</span>
-</div>
-<div class="mb-3">
-    <label for="author" class="form-label">Author</label>
-    <span id="author" class="form-control">@Book?.Author</span>
-</div>
-<div class="mb-3">
-    <label for="genre" class="form-label">Genre</label>
-    <span id="genre" class="form-control">@Book?.Genre</span>
-</div>
+@if (Book == null)
+{
+    <p>Not found...</p>
+}
+else
+{
+    <div class="mb-3">
+        <label for="title" class="form-label">Title</label>
+        <span id="title" class="form-control">@Book?.Title</span>
+    </div>
+    <div class="mb-3">
+        <label for="author" class="form-label">Author</label>
+        <span id="author" class="form-control">@Book?.Author</span>
+    </div>
+    <div class="mb-3">
+        <label for="genre" class="form-label">Genre</label>
+        <span id="genre" class="form-control">@Book?.Genre</span>
+    </div>
+}
 
 <a class="btn btn-info" href="/">Return to List</a>
